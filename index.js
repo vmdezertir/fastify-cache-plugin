@@ -2,7 +2,7 @@
 
 const fp = require('fastify-plugin');
 const { pathToRegexp } = require('path-to-regexp');
-const crypto = require('crypto');
+const { createHash } = require('node:crypto');
 const Redis = require('ioredis');
 const { promisify } = require('util');
 const read = promisify(require('readall'));
@@ -31,7 +31,7 @@ function filterUrl(url, exclude = ['updateCache']) {
 
   return result;
 }
-const md5 = (str) => crypto.createHash('md5').update(str).digest('hex');
+const md5 = (str) => createHash('md5').update(str).digest('hex');
 function generateKeys(prefix, url, excludeRouteQuery) {
   const fUrl = filterUrl(url, excludeRouteQuery);
   const key = `${prefix}${md5(fUrl)}`;
@@ -150,7 +150,7 @@ function fastifyCachePlugin(instance, options, next) {
       host: 'localhost',
       port: 6379,
     },
-    onError = (err) => console.err('Redis error happened:', err),
+    onError = (err) => console.log('Redis error happened:', JSON.stringify(err)),
   } = { ...options };
   const redisClient = new Redis(redisOpts);
 
@@ -275,6 +275,8 @@ function fastifyCachePlugin(instance, options, next) {
 }
 
 module.exports = fp(fastifyCachePlugin, {
-  fastify: '^3.0.0',
+  fastify: '^4.16.0',
   name: 'fastify-cache-plugin',
 });
+module.exports.default = fastifyCachePlugin;
+module.exports.fastifyCachePlugin = fastifyCachePlugin;

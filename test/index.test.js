@@ -14,7 +14,7 @@ const options = {
 	},
 	protocol: 'http'
 };
-server.register(require('./plugin'), options);
+server.register(require('../index'), options);
 
 server.get('/foo', (req, reply) => {
 	setTimeout(() => {
@@ -27,10 +27,13 @@ server.get('/bar', (req, reply) => {
 	}, 1000);
 });
 
-server.listen(3000, (err, address) => {
-	if (err) {
-		server.log.error(err);
-		throw err;
+// Run the server!
+const start = async () => {
+	try {
+		await server.listen({ port: 3000 });
+	} catch (err) {
+		server.log.error(err)
+		process.exit(1)
 	}
-	server.log.info(`Server listening on ${address}`);
-});
+}
+start();

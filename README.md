@@ -30,13 +30,18 @@ const options = {
 };
 server.register(require('fastify-redis-cache'), options);
 
-server.listen(3000, (err, address) => {
-  if (err) {
-    server.log.error(err);
-    throw err;
+// Run the server!
+const start = async () => {
+  try {
+    await server.listen({ port: 3000 });
+    const address = server.server.address();
+    server.log.info(`Server listening on ${address}`);
+  } catch (err) {
+    server.log.error(err)
+    process.exit(1)
   }
-  server.log.info(`Server listening on ${address}`);
-});
+}
+start();
 ```
 Plugin sets an X-Cache custom header with a value (short or long) that determines where the cache comes from.
 
@@ -75,9 +80,4 @@ If the route parameter `expire` is not specified, the default value (`30 seconds
 ### 📌 onError
 * type: `Function`
 * description: callback function for errors
-* default: `(err) => console.err('Redis error happened:', err)`
-
-## 🗓️ Future plans
-* [ ] Update to version 4
-* [ ] Write tests
-* [ ] TypeScript
+* default: `(err) => console.log('Redis error happened:', JSON.stringify(err))`
